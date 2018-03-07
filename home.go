@@ -8,7 +8,7 @@ import (
 const indexHTML = `<!DOCTYPE html>
 <html lang="en">
 <head>
-<title>demon</title>
+<title>{{.Title}}</title>
 <script type="text/javascript">
 window.onload = function () {
 	var f = function(k) {
@@ -72,47 +72,87 @@ html {
     overflow: hidden;
 }
 body {
-    overflow: hidden;
-    padding: 0;
-    margin: 0;
-    width: 100%;
-    height: 100%;
-    background: gray;
+	background: #e2e1e0;
+	text-align: center;
+	font-family: "Go", "Arial", sans-serif;
+}
+h1 {
+	color: #0074D9;
+	font-size: 16pt;
+}
+.group {
+	background: #fff;
+	border-radius: 2px;
+	display: inline-block;
+	height: 300px;
+	margin: 1rem;
+	position: relative;
+	width: 400px;
+	resize: both;
+	overflow: auto;
+	box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+	transition: all 0.3s cubic-bezier(.25,.8,.25,1);
+	vertical-align: top;
+}
+.group:hover {
+	box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
+}
+.group h1 {
+	font-size: 12pt;
+}
+.log iframe {
+	height: 100%;
+	width: 100%;
+	margin: 0;
+	padding: 0;
+	border: none;
 }
 .log {
+	text-align: left;
     background: white;
     margin: 0;
-    padding: 0.5em 0.5em 0.5em 0.5em;
-    top: 0.5em;
-    left: 0.5em;
-    right: 0.5em;
-    bottom: 3em;
+	padding: 0.5em 0.5em 0.5em 0.5em;
+	top: 3em;
+	left: 0.5em;
+	right: 0.5em;
+	bottom: 3em;
 	overflow: auto;
-	height: 200px;
+	position: absolute;  
 }
 .log pre {
-  margin: 0;
-  font-family: "Go Mono", "Consolas", monospace;
-  font-size: 10pt;
+  	margin: 0;
+  	font-family: "Go Mono", "Consolas", monospace;
+  	font-size: 10pt;
 }
 .form {
-    padding: 0 0.5em 0 0.5em;
+    padding: 0.5em 0.5em 0.5em 0.5em;
     margin: 0;
-    bottom: 1em;
-    left: 0px;
-    width: 100%;
     overflow: hidden;
+    bottom: 1em;
+	left: 0px;
+	position: absolute;
 }
 </style>
 </head>
 <body>
+<h1>{{.Title}}</h1>
+{{ range $k, $s := .Sites}}
+<div class="group">
+	<h1>{{$s.Title}}</h1>
+	<div class="log">
+		<iframe src="{{$s.URL}}"></iframe>
+	</div>
+</div>
+{{end}}
 {{range $k, $p := .Processes}}
-<h1>{{$p.Title}}</h1>
-<div id="{{$k}}_log" class="log"></div>
-<form id="{{$k}}_form" class="form">
-    <input type="submit" value="Send" />
-    <input type="text" id="{{$k}}_msg" size="64"/>
-</form>
+<div class="group">
+	<h1>{{$p.Title}}</h1>
+	<div id="{{$k}}_log" class="log"></div>
+	<form id="{{$k}}_form" class="form">
+    	<input type="submit" value="Send" />
+    	<input type="text" id="{{$k}}_msg" size="64" />
+	</form>
+</div>
 {{end}}
 </body>
 </html>`

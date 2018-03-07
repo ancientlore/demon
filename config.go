@@ -39,6 +39,7 @@ type step struct {
 
 // config holds the sites, processes, and steps for the demo.
 type config struct {
+	Title     string              `json:"title"`               // Title to display
 	Sites     map[string]*site    `json:"sites,omitempty"`     // Sites to show
 	Processes map[string]*process `json:"processes,omitempty"` // Processes to start
 	Steps     []step              `json:"steps"`               // Steps to enable

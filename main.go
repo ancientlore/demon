@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	flagConfig = flag.String("config", "demon.json", "Config file to use")
+	flagConfig = flag.String("config", "demo.json", "Config file to use")
 	flagAddr   = flag.String("addr", ":8080", "Service address")
 )
 

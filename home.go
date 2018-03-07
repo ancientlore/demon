@@ -10,6 +10,41 @@ const indexHTML = `<!DOCTYPE html>
 <head>
 <title>{{.Title}}</title>
 <script type="text/javascript">
+var currentStep = 0;
+var steps = [{{range $i, $v := .Steps}}{{if $i}},{{end}}
+	{
+		title: "{{$v.Title}}",
+		desc: "{{$v.Desc}}",
+		id: "{{$v.ID}}",
+		input: "{{$v.Input}}"
+	}{{end}}
+];
+
+var prevStep = function() {
+	if (currentStep > 0)
+		currentStep--;
+	document.getElementById("step").innerText = (currentStep+1).toString() + ". " + steps[currentStep].title;
+	document.getElementById("desc").innerText = steps[currentStep].desc;
+	document.getElementById("input").innerText = steps[currentStep].input;
+}
+var nextStep = function() {
+	if (currentStep < steps.length - 1)
+		currentStep++;
+	document.getElementById("step").innerText = (currentStep+1).toString() + ". " + steps[currentStep].title;
+	document.getElementById("desc").innerText = steps[currentStep].desc;
+	document.getElementById("input").innerText = steps[currentStep].input;
+}
+
+var runStep = function() {
+	var s = steps[currentStep];
+	var f = submitters[s.id];
+	f(s.input);
+}
+
+var submitters = {};
+{{range $k, $p := .Processes}}submitters["{{$k}}"] = null;
+{{end}}
+
 window.onload = function () {
 	var f = function(k) {
 		var conn;
@@ -22,20 +57,28 @@ window.onload = function () {
 				log.scrollTop = log.scrollHeight - log.clientHeight;
 			}
 		}
-		document.getElementById(k+"_form").onsubmit = function () {
+		submitters[k] = function (val) {
 			if (!conn) {
 				return false;
 			}
-			if (!msg.value) {
+			if (!val) {
 				return false;
 			}
 			var item = document.createElement("div");
-			item.innerHTML = "<pre>$ <b>"+msg.value+"</b></pre>";
+			item.innerHTML = "<pre>$ <b>"+val+"</b></pre>";
 			appendLog(item);
-			conn.send(msg.value);
-			msg.value = "";
+			conn.send(val);
 			return false;
 		};
+		document.getElementById(k+"_form").onsubmit = function () {
+			if (!msg.value) {
+				return false;
+			}
+			var r = submitters[k](msg.value);
+			msg.value = "";
+			return r;
+		};
+
 		if (window["WebSocket"]) {
 			conn = new WebSocket("ws://" + document.location.host + "/ws/"+k);
 			conn.onclose = function (evt) {
@@ -62,14 +105,14 @@ window.onload = function () {
 		}
 	};
 
-	{{ range $k, $p := .Processes}}
-	f("{{$k}}");
-	{{end}}
+	{{ range $k, $p := .Processes}}	f("{{$k}}");
+{{end}}
+
+	prevStep();
 };
 </script>
 <style type="text/css">
 html {
-    overflow: hidden;
 }
 body {
 	background: #e2e1e0;
@@ -100,6 +143,12 @@ h1 {
 .group h1 {
 	font-size: 12pt;
 }
+.group h2 {
+	font-size: 10pt;
+}
+.group p {
+	font-size: 8pt;
+}
 .log iframe {
 	height: 100%;
 	width: 100%;
@@ -124,6 +173,10 @@ h1 {
   	font-family: "Go Mono", "Consolas", monospace;
   	font-size: 10pt;
 }
+.group pre {
+	font-family: "Go Mono", "Consolas", monospace;
+	font-size: 10pt;
+}
 .form {
     padding: 0.5em 0.5em 0.5em 0.5em;
     margin: 0;
@@ -136,6 +189,16 @@ h1 {
 </head>
 <body>
 <h1>{{.Title}}</h1>
+<div class="group">
+	<h1 id="step"></h1>
+	<p id="desc"></p>
+	<pre id="input"></pre>
+	<div>
+		<input type="button" value="<" onclick="javascript:prevStep()"/>&nbsp;
+		<input type="button" value="RUN" onclick="javascript:runStep()"/>&nbsp;
+		<input type="button" value=">" onclick="javascript:nextStep()"/>
+	</div>
+</div>
 {{ range $k, $s := .Sites}}
 <div class="group">
 	<h1>{{$s.Title}}</h1>
@@ -149,8 +212,8 @@ h1 {
 	<h1>{{$p.Title}}</h1>
 	<div id="{{$k}}_log" class="log"></div>
 	<form id="{{$k}}_form" class="form">
-    	<input type="submit" value="Send" />
-    	<input type="text" id="{{$k}}_msg" size="64" />
+    	<input type="submit" value="Send" />&nbsp;
+    	<input type="text" id="{{$k}}_msg" size="50" />
 	</form>
 </div>
 {{end}}

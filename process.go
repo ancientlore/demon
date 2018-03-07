@@ -1,0 +1,106 @@
+package main
+
+import (
+	"bufio"
+	"fmt"
+	"io"
+	"log"
+	"os"
+	"os/exec"
+	"strings"
+	"sync"
+)
+
+// Start starts a process after processing environment variables in the command line
+// and connecting pipes for I/O.
+func (p *process) Start() error {
+	var err error
+
+	name := p.Command[0]
+	args := make([]string, len(p.Command)-1)
+	copy(args, p.Command[1:])
+	for i := range args {
+		if strings.HasPrefix(args[i], "$") {
+			args[i] = os.Getenv(strings.TrimPrefix(args[i], "$"))
+		}
+	}
+	log.Print("Starting ", name, strings.Join(args, " "))
+	p.cmd = exec.Command(name, args...)
+	p.cmd.Dir = p.Dir
+
+	p.stdin, err = p.cmd.StdinPipe()
+	if err != nil {
+		return err
+	}
+	p.stdout, err = p.cmd.StdoutPipe()
+	if err != nil {
+		return err
+	}
+	p.wg.Add(1)
+	go readPipe(&p.wg, p.stdout, os.Stdout)
+	p.stderr, err = p.cmd.StderrPipe()
+	if err != nil {
+		return err
+	}
+	p.wg.Add(1)
+	go readPipe(&p.wg, p.stderr, os.Stderr)
+
+	err = p.cmd.Start()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Wait completes the execution of a process and waits for it to finish.
+func (p *process) Wait() error {
+	if p.stdin != nil {
+		p.stdin.Close()
+	}
+	if p.cmd != nil {
+		p.wg.Wait()
+		return p.cmd.Wait()
+	}
+	return nil
+}
+
+// Write is ised to write information to stdin.
+func (p *process) Write(b []byte) (int, error) {
+	return p.stdin.Write(b)
+}
+
+// Interrupt sends an interrupt signal to the process.
+func (p *process) Interrupt() error {
+	return p.cmd.Process.Signal(os.Interrupt)
+}
+
+// readPipe is used as a gorotuine to process data coming back from the process.
+func readPipe(wg *sync.WaitGroup, p io.Reader, dest io.Writer) {
+	defer wg.Done()
+
+	scanner := bufio.NewScanner(p)
+	for scanner.Scan() {
+		fmt.Fprintln(dest, scanner.Text())
+	}
+	if err := scanner.Err(); err != nil {
+		log.Print(err)
+	}
+	/*
+		b := make([]byte, 1024)
+		var (
+			err error
+			n   int
+		)
+		for err != io.EOF {
+			n, err = p.Read(b)
+			if err != nil && err != io.EOF {
+				log.Print(err)
+			}
+			if n > 0 {
+				log.Printf("Read %d bytes", n)
+				fmt.Fprint(dest, string(b[0:n]))
+			}
+		}
+	*/
+}

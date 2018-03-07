@@ -86,21 +86,4 @@ func readPipe(wg *sync.WaitGroup, p io.Reader, dest io.Writer) {
 	if err := scanner.Err(); err != nil {
 		log.Print(err)
 	}
-	/*
-		b := make([]byte, 1024)
-		var (
-			err error
-			n   int
-		)
-		for err != io.EOF {
-			n, err = p.Read(b)
-			if err != nil && err != io.EOF {
-				log.Print(err)
-			}
-			if n > 0 {
-				log.Printf("Read %d bytes", n)
-				fmt.Fprint(dest, string(b[0:n]))
-			}
-		}
-	*/
 }

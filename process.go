@@ -13,7 +13,7 @@ import (
 
 // Start starts a process after processing environment variables in the command line
 // and connecting pipes for I/O.
-func (p *process) Start() error {
+func (p *process) Start(dest, errDest io.Writer) error {
 	var err error
 
 	name := p.Command[0]
@@ -37,13 +37,16 @@ func (p *process) Start() error {
 		return err
 	}
 	p.wg.Add(1)
-	go readPipe(&p.wg, p.stdout, os.Stdout)
-	p.stderr, err = p.cmd.StderrPipe()
-	if err != nil {
-		return err
-	}
-	p.wg.Add(1)
-	go readPipe(&p.wg, p.stderr, os.Stderr)
+	go readPipe(&p.wg, p.stdout, dest)
+	p.cmd.Stderr = p.cmd.Stdout
+	/*
+		p.stderr, err = p.cmd.StderrPipe()
+		if err != nil {
+			return err
+		}
+		p.wg.Add(1)
+		go readPipe(&p.wg, p.stderr, errDest)
+	*/
 
 	err = p.cmd.Start()
 	if err != nil {
@@ -59,6 +62,7 @@ func (p *process) Wait() error {
 		p.stdin.Close()
 	}
 	if p.cmd != nil {
+		log.Print("Waiting for ", p.Command[0])
 		p.wg.Wait()
 		return p.cmd.Wait()
 	}
@@ -82,6 +86,7 @@ func readPipe(wg *sync.WaitGroup, p io.Reader, dest io.Writer) {
 	scanner := bufio.NewScanner(p)
 	for scanner.Scan() {
 		fmt.Fprintln(dest, scanner.Text())
+		// fmt.Fprintln(os.Stdout, scanner.Text())
 	}
 	if err := scanner.Err(); err != nil {
 		log.Print(err)

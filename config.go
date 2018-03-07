@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io"
 	"io/ioutil"
+	"os"
 	"os/exec"
 	"sync"
 )
@@ -61,7 +62,7 @@ func readConfig(file string) (*config, error) {
 func (c *config) Start() error {
 	var merr multiError
 	for _, p := range c.Processes {
-		err := p.Start()
+		err := p.Start(os.Stdout, os.Stderr)
 		if err != nil {
 			merr = append(merr, err)
 		}

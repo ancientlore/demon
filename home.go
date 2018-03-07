@@ -20,19 +20,25 @@ var steps = [{{range $i, $v := .Steps}}{{if $i}},{{end}}
 	}{{end}}
 ];
 
+var setStep = function() {
+	document.getElementById("step").innerText = (currentStep+1).toString() + ". " + steps[currentStep].title;
+	document.getElementById("desc").innerText = steps[currentStep].desc;
+	var inp = steps[currentStep].input;
+	if (inp != "") {
+		inp = "$ " + inp;
+	}
+	document.getElementById("input").innerText = inp;
+}
+
 var prevStep = function() {
 	if (currentStep > 0)
 		currentStep--;
-	document.getElementById("step").innerText = (currentStep+1).toString() + ". " + steps[currentStep].title;
-	document.getElementById("desc").innerText = steps[currentStep].desc;
-	document.getElementById("input").innerText = steps[currentStep].input;
+	setStep();
 }
 var nextStep = function() {
 	if (currentStep < steps.length - 1)
 		currentStep++;
-	document.getElementById("step").innerText = (currentStep+1).toString() + ". " + steps[currentStep].title;
-	document.getElementById("desc").innerText = steps[currentStep].desc;
-	document.getElementById("input").innerText = steps[currentStep].input;
+	setStep();
 }
 
 var runStep = function() {

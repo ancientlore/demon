@@ -9,6 +9,7 @@ import (
 	"os/exec"
 	"strings"
 	"sync"
+	"time"
 )
 
 // Start starts a process after processing environment variables in the command line
@@ -58,7 +59,20 @@ func (p *process) Start(dest, errDest io.Writer) error {
 
 // Wait completes the execution of a process and waits for it to finish.
 func (p *process) Wait() error {
+	defer func() {
+		p.stderr = nil
+		p.stdout = nil
+		p.stdin = nil
+		p.cmd = nil
+	}()
 	if p.stdin != nil {
+		if p.ExitInput != "" {
+			_, err := p.Write([]byte(p.ExitInput + "\n"))
+			if err != nil {
+				log.Print(err)
+			}
+			time.Sleep(100 * time.Millisecond)
+		}
 		p.stdin.Close()
 	}
 	if p.cmd != nil {
@@ -71,6 +85,7 @@ func (p *process) Wait() error {
 
 // Write is ised to write information to stdin.
 func (p *process) Write(b []byte) (int, error) {
+	log.Print(p.Title, ": ", string(b))
 	return p.stdin.Write(b)
 }
 

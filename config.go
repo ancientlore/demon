@@ -19,15 +19,16 @@ type site struct {
 
 // process represents a OS process that commands can be sent to.
 type process struct {
-	Title    string   `json:"title"`         // Title to display
-	Command  []string `json:"command"`       // Command to run to start the process
-	Dir      string   `json:"dir,omitempty"` // Working directory
-	Position int      `json:"position"`      // Position of the panel
-	cmd      *exec.Cmd
-	stdin    io.WriteCloser
-	stdout   io.ReadCloser
-	stderr   io.ReadCloser
-	wg       sync.WaitGroup
+	Title     string   `json:"title"`         // Title to display
+	Command   []string `json:"command"`       // Command to run to start the process
+	Dir       string   `json:"dir,omitempty"` // Working directory
+	Position  int      `json:"position"`      // Position of the panel
+	ExitInput string   `json:"exitInput"`     // Text to send at exit
+	cmd       *exec.Cmd
+	stdin     io.WriteCloser
+	stdout    io.ReadCloser
+	stderr    io.ReadCloser
+	wg        sync.WaitGroup
 }
 
 // step is a step of the demo that includes a command to run.

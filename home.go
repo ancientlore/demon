@@ -59,6 +59,9 @@ window.onload = function () {
 		function appendLog(item) {
 			var doScroll = log.scrollTop > log.scrollHeight - log.clientHeight - 1;
 			log.appendChild(item);
+			if (log.childElementCount > 120) {
+				log.removeChild(log.childNodes[0]);
+			}
 			if (doScroll) {
 				log.scrollTop = log.scrollHeight - log.clientHeight;
 			}
@@ -167,10 +170,10 @@ h1 {
     background: white;
     margin: 0;
 	padding: 0.5em 0.5em 0.5em 0.5em;
-	top: 3em;
+	top: 2em;
 	left: 0.5em;
 	right: 0.5em;
-	bottom: 3em;
+	bottom: 2em;
 	overflow: auto;
 	position: absolute;  
 }
@@ -187,7 +190,7 @@ h1 {
     padding: 0.5em 0.5em 0.5em 0.5em;
     margin: 0;
     overflow: hidden;
-    bottom: 1em;
+    bottom: 0px;
 	left: 0px;
 	position: absolute;
 }

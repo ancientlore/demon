@@ -29,6 +29,7 @@ type process struct {
 	stdout    io.ReadCloser
 	stderr    io.ReadCloser
 	wg        sync.WaitGroup
+	wm        sync.Mutex
 }
 
 // step is a step of the demo that includes a command to run.

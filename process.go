@@ -25,7 +25,7 @@ func (p *process) Start(dest, errDest io.Writer) error {
 			args[i] = os.Getenv(strings.TrimPrefix(args[i], "$"))
 		}
 	}
-	log.Print("Starting ", name, " ", strings.Join(args, " "))
+	log.Print(p.Title, ": Starting: ", name, " ", strings.Join(args, " "))
 	p.cmd = exec.Command(name, args...)
 	p.cmd.Dir = p.Dir
 
@@ -59,6 +59,8 @@ func (p *process) Start(dest, errDest io.Writer) error {
 
 // Wait completes the execution of a process and waits for it to finish.
 func (p *process) Wait() error {
+	p.wm.Lock()
+	defer p.wm.Unlock()
 	defer func() {
 		p.stderr = nil
 		p.stdout = nil
@@ -67,16 +69,18 @@ func (p *process) Wait() error {
 	}()
 	if p.stdin != nil {
 		if p.ExitInput != "" {
-			_, err := p.Write([]byte(p.ExitInput + "\n"))
+			log.Print(p.Title, ": Writing exit: ", p.ExitInput)
+			_, err := p.stdin.Write([]byte(p.ExitInput + "\n"))
 			if err != nil {
-				log.Print(err)
+				log.Print(p.Title, ": Error writing exit: ", err)
 			}
 			time.Sleep(100 * time.Millisecond)
 		}
+		log.Print(p.Title, ": Closing stdin")
 		p.stdin.Close()
 	}
 	if p.cmd != nil {
-		log.Print("Waiting for ", p.Command[0])
+		log.Print(p.Title, ": Starting wait: ", p.Command[0])
 		p.wg.Wait()
 		return p.cmd.Wait()
 	}
@@ -85,12 +89,15 @@ func (p *process) Wait() error {
 
 // Write is ised to write information to stdin.
 func (p *process) Write(b []byte) (int, error) {
-	log.Print(p.Title, ": ", string(b))
+	p.wm.Lock()
+	defer p.wm.Unlock()
+	log.Print(p.Title, ": Write: ", string(b))
 	return p.stdin.Write(b)
 }
 
 // Interrupt sends an interrupt signal to the process.
 func (p *process) Interrupt() error {
+	log.Print(p.Title, ": Interrupt")
 	return p.cmd.Process.Signal(os.Interrupt)
 }
 

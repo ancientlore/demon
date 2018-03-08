@@ -30,7 +30,10 @@ const (
 var upgrader = websocket.Upgrader{}
 
 func pumpStdin(ws *websocket.Conn, w io.Writer) {
-	defer ws.Close()
+	defer func() {
+		log.Print("Closing stdin websocket")
+		ws.Close()
+	}()
 	ws.SetReadLimit(maxMessageSize)
 	ws.SetReadDeadline(time.Now().Add(pongWait))
 	ws.SetPongHandler(func(string) error { ws.SetReadDeadline(time.Now().Add(pongWait)); return nil })
@@ -62,6 +65,7 @@ func pumpStdout(ws *websocket.Conn, r io.Reader, done chan struct{}) {
 	}
 	close(done)
 
+	log.Print("Closing stdout websocket")
 	ws.SetWriteDeadline(time.Now().Add(writeWait))
 	ws.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
 	time.Sleep(closeGracePeriod)

@@ -3,10 +3,9 @@ package main
 import (
 	"context"
 	"flag"
+	"fmt"
 	"log"
 	"net/http"
-	"os"
-	"os/signal"
 	"time"
 )
 
@@ -32,25 +31,50 @@ func main() {
 	h := &http.Server{Addr: *flagAddr, Handler: http.DefaultServeMux}
 
 	// Handle graceful shutdown
-	stop := make(chan os.Signal, 2)
-	signal.Notify(stop, os.Interrupt, os.Kill)
+	/*
+		stop := make(chan os.Signal, 2)
+		signal.Notify(stop, os.Interrupt, os.Kill)
+		go func() {
+			select {
+			case sig := <-stop:
+				log.Print("Received signal ", sig.String())
+				err := conf.Wait()
+				if err != nil {
+					log.Print(err)
+				}
+				d := time.Second * 5
+				if sig == os.Kill {
+					d = time.Second * 15
+				}
+				wait, cancel := context.WithTimeout(context.Background(), d)
+				defer cancel()
+				err = h.Shutdown(wait)
+				if err != nil {
+					log.Print(err)
+				}
+			}
+		}()
+	*/
+
 	go func() {
-		select {
-		case sig := <-stop:
-			log.Print("Received signal ", sig.String())
-			d := time.Second * 5
-			if sig == os.Kill {
-				d = time.Second * 15
-			}
-			conf.Wait()
-			wait, cancel := context.WithTimeout(context.Background(), d)
-			defer cancel()
-			err := h.Shutdown(wait)
-			if err != nil {
-				log.Print(err)
-			}
-		}
+		log.Print("Listening for requests.")
+		err = h.ListenAndServe()
+		log.Print(err)
 	}()
 
-	log.Fatal(h.ListenAndServe())
+	fmt.Println("Press return to stop the service.")
+	fmt.Scanln()
+
+	log.Print("Stopping server...")
+	err = conf.Wait()
+	if err != nil {
+		log.Print(err)
+	}
+	d := time.Second * 5
+	wait, cancel := context.WithTimeout(context.Background(), d)
+	defer cancel()
+	err = h.Shutdown(wait)
+	if err != nil {
+		log.Print(err)
+	}
 }

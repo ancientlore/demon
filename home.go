@@ -51,6 +51,23 @@ var submitters = {};
 {{range $k, $p := .Processes}}submitters["{{$k}}"] = null;
 {{end}}
 
+var smaller = function(s) {
+	var item = document.getElementById(s);
+	item.classList.remove("larger");
+	item.classList.add("smaller");
+};
+
+var normal = function(s) {
+	var item = document.getElementById(s);
+	item.classList.remove("smaller", "larger");
+};
+
+var larger = function(s) {
+	var item = document.getElementById(s);
+	item.classList.remove("smaller");
+	item.classList.add("larger");
+};
+
 window.onload = function () {
 	var f = function(k) {
 		var conn;
@@ -187,16 +204,22 @@ h1 {
 	right: 0.5em;
 	bottom: 2em;
 	overflow: auto;
-	position: absolute;  
+	position: absolute;
 }
 .log pre {
   	margin: 0;
   	font-family: "Go Mono", "Consolas", monospace;
-  	font-size: 10pt;
+	font-size: 10pt;
 }
 .group pre {
 	font-family: "Go Mono", "Consolas", monospace;
 	font-size: 10pt;
+}
+.larger pre {
+	font-size: 12pt;
+}
+.smaller pre {
+	font-size: 8pt;
 }
 #input {
 	white-space: pre-wrap;       /* css-3 */
@@ -212,6 +235,15 @@ h1 {
     bottom: 0.2em;
 	left: 0px;
 	position: absolute;
+}
+.controls {
+	text-align: right;
+    margin: 0;
+	padding: 0.1em 0.1em 0.1em 0.1em;
+	right: 0.2em;
+	top: 0.2em;
+	overflow: hidden;
+	position: absolute;  
 }
 </style>
 </head>
@@ -244,6 +276,11 @@ h1 {
     	<input type="submit" value="Send" />&nbsp;
     	<input type="text" id="{{$k}}_msg" size="50" />
 	</form>
+	<div class="controls">
+		<input type="button" value="-" onclick="javascript:smaller('{{$k}}_log')"/>
+		<input type="button" value="0" onclick="javascript:normal('{{$k}}_log')"/>
+		<input type="button" value="+" onclick="javascript:larger('{{$k}}_log')"/>
+	</div>
 </div>
 {{end}}{{end}}
 {{end}}{{end}}

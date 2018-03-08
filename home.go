@@ -68,6 +68,23 @@ var larger = function(s) {
 	item.classList.add("larger");
 };
 
+var smallerFrame = function(s) {
+	var item = document.getElementById(s);
+	item.classList.remove("larger-frame");
+	item.classList.add("smaller-frame");
+};
+
+var normalFrame = function(s) {
+	var item = document.getElementById(s);
+	item.classList.remove("smaller-frame", "larger-frame");
+};
+
+var largerFrame = function(s) {
+	var item = document.getElementById(s);
+	item.classList.remove("smaller-frame");
+	item.classList.add("larger-frame");
+};
+
 window.onload = function () {
 	var f = function(k) {
 		var conn;
@@ -194,6 +211,12 @@ h1 {
 	overflow: hidden;
 	position: absolute;  
 }
+.frwrapper {
+	padding: 0;
+	margin: 0;
+	height: 100%;
+	width: 100%;
+}
 .log {
 	text-align: left;
     background: white;
@@ -245,6 +268,28 @@ h1 {
 	overflow: hidden;
 	position: absolute;  
 }
+.smaller-frame {
+	zoom: 0.75;
+	-moz-transform: scale(0.75);
+	-moz-transform-origin: 0 0;
+	-o-transform: scale(0.75);
+	-o-transform-origin: 0 0;
+	-webkit-transform: scale(0.75);
+	-webkit-transform-origin: 0 0;
+	width: 134%;
+	height: 134%;
+}
+.larger-frame {
+	zoom: 1.25;
+	-moz-transform: scale(1.25);
+	-moz-transform-origin: 0 0;
+	-o-transform: scale(1.25);
+	-o-transform-origin: 0 0;
+	-webkit-transform: scale(1.25);
+	-webkit-transform-origin: 0 0;
+	width: 80%;
+	height: 80%;
+}
 </style>
 </head>
 <body>
@@ -264,7 +309,14 @@ h1 {
 <div class="group">
 	<h1>{{$s.Title}}</h1>
 	<div class="fr">
-		<iframe src="{{$s.URL}}"></iframe>
+		<div class="frwrapper" id="{{$k}}_fr">
+			<iframe src="{{$s.URL}}"></iframe>
+		</div>
+	</div>
+	<div class="controls">
+		<input type="button" value="-" onclick="javascript:smallerFrame('{{$k}}_fr')"/>
+		<input type="button" value="0" onclick="javascript:normalFrame('{{$k}}_fr')"/>
+		<input type="button" value="+" onclick="javascript:largerFrame('{{$k}}_fr')"/>
 	</div>
 </div>
 {{end}}{{end}}

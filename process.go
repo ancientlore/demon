@@ -24,7 +24,7 @@ func (p *process) Start(dest, errDest io.Writer) error {
 			args[i] = os.Getenv(strings.TrimPrefix(args[i], "$"))
 		}
 	}
-	log.Print("Starting ", name, strings.Join(args, " "))
+	log.Print("Starting ", name, " ", strings.Join(args, " "))
 	p.cmd = exec.Command(name, args...)
 	p.cmd.Dir = p.Dir
 

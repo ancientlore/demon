@@ -194,8 +194,8 @@ h1 {
 </style>
 </head>
 <body>
-<h1>{{.Title}}</h1>
-<div class="group">
+<h1>{{.Title}}</h1>{{with $c := .}}{{range $i := .Loop }}
+{{if eq $c.StepsPosition $i}}<div class="group">
 	<h1 id="step"></h1>
 	<p id="desc"></p>
 	<pre id="input"></pre>
@@ -205,15 +205,16 @@ h1 {
 		<input type="button" value=">" onclick="javascript:nextStep()"/>
 	</div>
 </div>
-{{ range $k, $s := .Sites}}
+{{end}}
+{{ range $k, $s := $c.Sites}}{{if eq $i $s.Position}}
 <div class="group">
 	<h1>{{$s.Title}}</h1>
 	<div class="log">
 		<iframe src="{{$s.URL}}"></iframe>
 	</div>
 </div>
-{{end}}
-{{range $k, $p := .Processes}}
+{{end}}{{end}}
+{{range $k, $p := $c.Processes}}{{if eq $i $p.Position}}
 <div class="group">
 	<h1>{{$p.Title}}</h1>
 	<div id="{{$k}}_log" class="log"></div>
@@ -222,7 +223,8 @@ h1 {
     	<input type="text" id="{{$k}}_msg" size="50" />
 	</form>
 </div>
-{{end}}
+{{end}}{{end}}
+{{end}}{{end}}
 </body>
 </html>`
 

@@ -46,6 +46,8 @@ type config struct {
 	Sites         map[string]*site    `json:"sites,omitempty"`     // Sites to show
 	Processes     map[string]*process `json:"processes,omitempty"` // Processes to start
 	Steps         []step              `json:"steps"`               // Steps to enable
+
+	Loop []int `json:"-"` // Used to iterate in position order in the template
 }
 
 // readConfig loads a JSON file that stores a config.
@@ -106,6 +108,10 @@ func (c *config) Validate() error {
 		}
 	}
 	count := len(c.Processes) + len(c.Sites) + 1
+	c.Loop = make([]int, count)
+	for i := range c.Loop {
+		c.Loop[i] = i
+	}
 	for k, v := range c.Processes {
 		if v.Position < 0 || v.Position >= count {
 			m = append(m, fmt.Errorf("Position of process %q is out of bounds: %d", k, v.Position))
@@ -122,5 +128,6 @@ func (c *config) Validate() error {
 	if len(m) > 0 {
 		return m
 	}
+
 	return nil
 }

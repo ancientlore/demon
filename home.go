@@ -141,7 +141,7 @@ h1 {
 	position: relative;
 	width: 400px;
 	resize: both;
-	overflow: auto;
+	overflow: hidden;
 	box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
 	transition: all 0.3s cubic-bezier(.25,.8,.25,1);
 	vertical-align: top;
@@ -158,12 +158,24 @@ h1 {
 .group p {
 	font-size: 8pt;
 }
-.log iframe {
+.fr iframe {
 	height: 100%;
 	width: 100%;
 	margin: 0;
 	padding: 0;
 	border: none;
+}
+.fr {
+	text-align: left;
+    background: white;
+    margin: 0;
+	padding: 0.5em 0.5em 0.5em 0.5em;
+	top: 2em;
+	left: 0.5em;
+	right: 0.5em;
+	bottom: 2em;
+	overflow: hidden;
+	position: absolute;  
 }
 .log {
 	text-align: left;
@@ -212,7 +224,7 @@ h1 {
 {{ range $k, $s := $c.Sites}}{{if eq $i $s.Position}}
 <div class="group">
 	<h1>{{$s.Title}}</h1>
-	<div class="log">
+	<div class="fr">
 		<iframe src="{{$s.URL}}"></iframe>
 	</div>
 </div>

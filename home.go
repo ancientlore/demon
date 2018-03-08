@@ -202,7 +202,7 @@ h1 {
     padding: 0.5em 0.5em 0.5em 0.5em;
     margin: 0;
     overflow: hidden;
-    bottom: 0px;
+    bottom: 0.2em;
 	left: 0px;
 	position: absolute;
 }

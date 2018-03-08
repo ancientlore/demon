@@ -173,7 +173,7 @@ h1 {
 	top: 2em;
 	left: 0.5em;
 	right: 0.5em;
-	bottom: 2em;
+	bottom: 0.5em;
 	overflow: hidden;
 	position: absolute;  
 }

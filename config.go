@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"strings"
 	"sync"
 )
 
@@ -122,6 +123,9 @@ func (c *config) Validate() error {
 	for k, v := range c.Sites {
 		if v.Position < 0 || v.Position >= count {
 			m = append(m, fmt.Errorf("Position of site %q is out of bounds: %d", k, v.Position))
+		}
+		if strings.HasPrefix(v.URL, "$") {
+			v.URL = os.Getenv(strings.TrimPrefix(v.URL, "$"))
 		}
 	}
 	if c.StepsPosition < 0 || c.StepsPosition >= count {

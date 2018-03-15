@@ -137,7 +137,9 @@ window.onload = function () {
 					if (s.length == 0) {
 						s = " ";
 					}
-					item.innerHTML = "<pre>"+s+"</pre>";
+					var pre = document.createElement("pre");
+					pre.innerText = s;
+					item.appendChild(pre);
 					appendLog(item);
 				}
 			};

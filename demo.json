@@ -1,0 +1,52 @@
+{
+    "title": "httpbin demo",
+    "stepsPosition": 1,
+    "sites": {
+        "webnull": {
+            "title": "httpbin",
+            "url": "http://httpbin.org/",
+            "position": 0
+        }
+    },
+    "processes": {
+        "bash": {
+            "title": "bash",
+            "command": ["bash"],
+            "dir": "",
+            "position": 2,
+            "exitInput": "exit"
+        }
+    },
+    "steps": [
+        {
+            "title": "Demo of httpbin",
+            "desc": "This demo shows some things that you can do with httpbin.",
+            "id": "",
+            "input": ""
+        },
+        {
+            "title": "Get your IP address",
+            "desc": "Returns the origin IP address",
+            "id": "bash",
+            "input": "curl -s http://httpbin.org/ip"
+        },
+        {
+            "title": "Get a UUID4",
+            "desc": "Returns a new UUID.",
+            "id": "bash",
+            "input": "curl -s http://httpbin.org/uuid"
+        },
+        {
+            "title": "Get some XML",
+            "desc": "Returns some XML.",
+            "id": "bash",
+            "input": "curl -s http://httpbin.org/xml"
+        },
+        {
+            "title": "Summary",
+            "desc": "Try some commands of your own, based on the documentation above!",
+            "id": "",
+            "input": ""
+        }
+    ]
+}

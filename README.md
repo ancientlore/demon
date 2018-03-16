@@ -20,6 +20,8 @@ You can give the demo a title using `title` and define which box holds the steps
 
 Sites are specified using a map of a site name and data about the site. `title` is the title for the box, `url` specifies the URL of the site to load in the `iframe`, and `position` specifies where to place the box.
 
+> Note: `url` may optionally be a single environment variable preceded with a `$`, like `"url": "$MYURL"`.
+
 ### Processes
 
 Processes are specified using a map of a process name and data about the process. `title` specifies the title for the box, and `position` specifies where to place the box.
@@ -29,6 +31,8 @@ Processes are specified using a map of a process name and data about the process
 `dir` specifies what directory to start the process in.
 
 `exitInput` allows you send a "last command" before terminating the process, for instance `exit`.
+
+> Note: Any element of the `command` array may be a single environment variable preceded with a `$`. For example, `"command": [ "kubectl", "exec", "-i", "$POD", "/bin/sh"]`.
 
 ### Steps
 

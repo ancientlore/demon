@@ -1,0 +1,205 @@
+Demon
+A tool for running demos
+18:00 16 May 2018
+Tags: golang, demo, websocket, http
+
+Michael Lore
+Principal Architect, SAP Concur
+@ancientlore
+
+
+
+* About Me
+
+- Central Architecture Team at SAP Concur
+- Designed the booking engine powering Concur Travel
+- Playing with Go since 2010 (see [[https://github.com/ancientlore/go-avltree][go-avltree]])
+- Interested in concurrent applications in the travel space
+- ...which explains my interest in Go
+
+.image media/gopher.png
+
+[[https://twitter.com/ancientlore][@ancientlore]]
+
+.background media/plane_bg.png
+
+: Hello.
+
+
+
+* The problem with demos
+.image media/demo_pain.png 530 _
+.background media/plane_bg.png
+
+: Switching windows.
+: Copy/paste commands.
+: Typos.
+: More stress while giving demo.
+
+
+
+* A solution
+.image media/demo_solved_notes.png 550 _
+.background media/plane_bg.png
+
+: View iframes.
+: Demo script with commmands included.
+: websocket access to external processes.
+: Script knows where to send commands.
+: Less stress!
+
+
+
+* Can it be mostly done in two days?
+
+- JSON config file - very easy in Go
+- Go's `os/exec` package can be used to launch processes
+- Using [[https://github.com/gorilla/websocket][github.com/gorilla/websocket]] for websockets, we can send commands to processes and receive the output
+- Use Go's templates to render the HTML site
+- Find/steal some decent CSS
+- Write some simple JavaScript - less fun than Go, but unavoidable
+
+.background media/plane_bg.png
+
+: Go provides a lot of what we need to do this quickly.
+: External packages provide the rest.
+
+
+
+* Config File - sites and processes
+.code demo.json /^\{/,/^\s*"steps"/
+.background media/plane_bg.png
+
+: Sites are URLs to load into an iframe.
+: Processes are external programs to run (like a bash shell).
+: Each has a key name in the map that can be used later.
+: The position specifies the order the windows are loaded.
+
+
+
+* Config File - steps
+.code demo.json /^\s*"steps"/,/"Get some XML"/
+.background media/plane_bg.png
+
+: Steps are basically your demo script.
+: Each step can optionally include an input command to send to one of the processes.
+: The id specifies which process to send the command to.
+
+
+
+* Loading the Config File
+.code config.go /^\s*type config/,/c\.Validate/
+.background media/plane_bg.png
+
+: JSON tags provide hints to the JSON marshaler.
+: The configuration is read from a file and the config type is unmarshaled from JSON.
+: Validation checks that the configuration is consistent.
+
+
+
+* The process type
+.code config.go /^\s*type process/,/^\}/
+
+- Start(dest, errDest io.Writer) error
+- Wait() error
+- Write(b []byte) (int, error) // io.Writer
+
+See [[https://golang.org/pkg/os/exec/][golang.org/pkg/os/exec]]
+.background media/plane_bg.png
+
+: The process type doesn't know about websockets.
+: Was written during testing before websockets were added.
+: It allows you to start and stop the process.
+: It reads the stdout/stderr and writes to the streams provided.
+: Use Write (implementing io.Writer) to write to stdin.
+: Doesn't really need the waitgroup unless we separately handle stdout/stderr.
+
+
+
+* Starting a process
+.code process.go /exec.Command/,/cmd.Start/
+.background media/plane_bg.png
+
+: Create the command.
+: Assign the directory to run the command in.
+: Create input and output pipes. (Could perhaps be done just assigning Stdin and Stdout.)
+: Make stderr use the same output pipe.
+: Start the command.
+
+* Ending a process
+.code process.go /p.stdin != nil/,/return nil/
+.background media/plane_bg.png
+
+: Close the input, optionally sending an exit command. This is typically used to get the shell to stop.
+: Wait on the wait group - this waits for the reader to exit on EOF.
+: Want on the command to finish.
+
+
+
+* Websockets - Upgrading the connection
+.code socket.go /ServeHTTP/,/stdoutDone/
+.background media/plane_bg.png
+
+: Websocket code borrowed largely from https://github.com/gorilla/websocket/tree/master/examples/command.
+: Connection must be upgraded to a websocket.
+: Start the process.
+
+
+
+* Processing the websocket
+.code socket.go /stdoutDone/,/^\}/
+.background media/plane_bg.png
+
+: Use goroutines to process output and input from websockets.
+: Websocket is closed during graceful server shutdown.
+
+
+
+* Client-side websocket
+.code home.go /window\["WebSocket"\]/,/\} else \{/
+.background media/plane_bg.png
+
+: Messages received are added to the DOM.
+
+
+
+* Client-side websocket - writes
+.code home.go /submitters\[k\] = function/,/\};/
+.background media/plane_bg.png
+
+: Messages received are added to the DOM.
+
+
+
+* Serving the templates
+
+.code home.go /<body>/,/\{\{end\}\}/
+
+The handler:
+.code home.go /var tpl/,/^\}/
+.background media/plane_bg.png
+
+: Using html/template.
+
+
+* Demo
+.iframe http://localhost:8080 600 1000
+.background media/plane_bg.png
+
+: Don't forget to start the program...
+
+
+
+* Thoughts
+
+- Pretty easy to "scratch your own itch" using Go.
+- gorilla/websocket handles SIGINT, I'd rather be able to control it.
+- os/exec: having both `.Stdin` and `.StdinPipe()` is a bit confusing.
+- There is a bit of mismatch between `os/exec` and `gorilla/websocket`, but their examples are good.
+- CSS is messy; beg, borrow, or steal if you need to move quickly.
+- You can do a lot with JavaScript even without a fancy framework.
+- Might not work in every browser.
+
+.background media/plane_bg.png
+
+: Finish.

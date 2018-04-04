@@ -99,4 +99,4 @@ Steps represent input commands that are sent to processes that were started. Ste
 
 ## Screen Shot
 
-![Screen Shot](resiliency_demo.png)
+![Screen Shot](media/demo_solved.png)

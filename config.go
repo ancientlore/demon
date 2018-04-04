@@ -25,12 +25,13 @@ type process struct {
 	Dir       string   `json:"dir,omitempty"` // Working directory
 	Position  int      `json:"position"`      // Position of the panel
 	ExitInput string   `json:"exitInput"`     // Text to send at exit
-	cmd       *exec.Cmd
-	stdin     io.WriteCloser
-	stdout    io.ReadCloser
-	stderr    io.ReadCloser
-	wg        sync.WaitGroup
-	wm        sync.Mutex
+
+	cmd    *exec.Cmd      // Command object for running the process
+	stdin  io.WriteCloser // Input stream for the process
+	stdout io.ReadCloser  // Output stream for the process
+	stderr io.ReadCloser  // Error stream for the process
+	wg     sync.WaitGroup // Wait group used to make sure the readers are done
+	wm     sync.Mutex     // Mutex to make sure writes to stdin are serialized
 }
 
 // step is a step of the demo that includes a command to run.

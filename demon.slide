@@ -137,7 +137,7 @@ See [[https://golang.org/pkg/os/exec/][golang.org/pkg/os/exec]]
 
 
 * Websockets - Upgrading the connection
-.code socket.go /ServeHTTP/,/stdoutDone/
+.code socket.go /ServeHTTP/,/p\.Wait/
 .background media/plane_bg.png
 
 : Websocket code borrowed largely from https://github.com/gorilla/websocket/tree/master/examples/command.

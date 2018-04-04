@@ -72,37 +72,6 @@ func readConfig(file string) (*config, error) {
 	return &c, nil
 }
 
-// Start starts all of the processes in a configuration.
-func (c *config) Start() error {
-	var merr multiError
-	for _, p := range c.Processes {
-		err := p.Start(os.Stdout, os.Stderr)
-		if err != nil {
-			merr = append(merr, err)
-		}
-	}
-	if len(merr) > 0 {
-		c.Wait()
-		return merr
-	}
-	return nil
-}
-
-// Wait completes all of the processes in a configuration.
-func (c *config) Wait() error {
-	var merr multiError
-	for _, p := range c.Processes {
-		err := p.Wait()
-		if err != nil {
-			merr = append(merr, err)
-		}
-	}
-	if len(merr) > 0 {
-		return merr
-	}
-	return nil
-}
-
 // Validate checks for inconsistencies in the config.
 func (c *config) Validate() error {
 	var m multiError

@@ -66,7 +66,7 @@ func main() {
 	fmt.Scanln()
 
 	log.Print("Stopping server...")
-	err = conf.Wait()
+	err = closeProcesses()
 	if err != nil {
 		log.Print(err)
 	}

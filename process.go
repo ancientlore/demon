@@ -12,10 +12,25 @@ import (
 	"time"
 )
 
+// Clone makes a copy of the process, ready to be started.
+func (p *process) Clone() *process {
+	return &process{
+		Title:     p.Title,
+		Command:   p.Command,
+		Dir:       p.Dir,
+		Position:  p.Position,
+		ExitInput: p.ExitInput,
+	}
+}
+
 // Start starts a process after processing environment variables in the command line
 // and connecting pipes for I/O.
 func (p *process) Start(dest, errDest io.Writer) error {
 	var err error
+
+	if p.cmd != nil {
+		return fmt.Errorf(p.Title, ": Process already started")
+	}
 
 	name := p.Command[0]
 	args := make([]string, len(p.Command)-1)

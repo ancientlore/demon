@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"sync"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -87,12 +88,45 @@ func ping(ws *websocket.Conn, done chan struct{}) {
 	}
 }
 
+var (
+	// Slice of processes to close on exit. In a real high-capacity site, you'd
+	// want to manage this list more carefully. But for our purposes, it's not
+	// very significant.
+	procsToClose []*process
+
+	// This mutex protects the above slice if multiple callers are trying to use it.
+	procsToCloseMutex sync.Mutex
+)
+
+func closeProcesses() error {
+	procsToCloseMutex.Lock()
+	defer procsToCloseMutex.Unlock()
+
+	var merr multiError
+	for _, p := range procsToClose {
+		err := p.Wait()
+		if err != nil {
+			merr = append(merr, err)
+		}
+	}
+	if len(merr) > 0 {
+		return merr
+	}
+	return nil
+}
+
 func (p *process) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Print("upgrade: ", err)
 		return
 	}
+
+	// Clone and add to list of processes to close later.
+	p = p.Clone()
+	procsToCloseMutex.Lock()
+	procsToClose = append(procsToClose, p)
+	procsToCloseMutex.Unlock()
 
 	defer ws.Close()
 

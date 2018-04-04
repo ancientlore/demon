@@ -57,7 +57,7 @@ func main() {
 	*/
 
 	go func() {
-		log.Print("Listening for requests.")
+		log.Print("Listening for requests on ", *flagAddr)
 		err = h.ListenAndServe()
 		log.Print(err)
 	}()

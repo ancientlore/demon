@@ -41,6 +41,7 @@ Principal Architect, SAP Concur
 : Copy/paste commands, to the right window.
 : Typos, missing steps...
 : More stress while giving demo.
+: Also more confusing for the audience trying to follow the steps.
 
 
 
@@ -49,10 +50,10 @@ Principal Architect, SAP Concur
 .background media/plane_bg.png
 
 : Show web pages in iframes.
-: Demo script with commmands included.
 : Websocket access to external processes like bash or kubectl exec.
+: Demo script with commmands included.
 : Demo script knows where to send commands!
-: Less stress!
+: Less stress! Easier to follow!
 
 
 
@@ -263,6 +264,8 @@ The handler:
 .background media/plane_bg.png
 
 : Using html/template.
+: THere is an outer loop that allows the elements to show up where sorted.
+: The loop is a little confusing (too clever) but works nicely.
 
 
 

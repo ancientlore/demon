@@ -38,8 +38,8 @@ Principal Architect, SAP Concur
 .background media/plane_bg.png
 
 : Switching windows.
-: Copy/paste commands.
-: Typos.
+: Copy/paste commands, to the right window.
+: Typos, missing steps...
 : More stress while giving demo.
 
 
@@ -48,10 +48,10 @@ Principal Architect, SAP Concur
 .image media/demo_solved_notes.png 550 _
 .background media/plane_bg.png
 
-: View iframes.
+: Show web pages in iframes.
 : Demo script with commmands included.
-: websocket access to external processes.
-: Script knows where to send commands.
+: Websocket access to external processes like bash or kubectl exec.
+: Demo script knows where to send commands!
 : Less stress!
 
 
@@ -64,6 +64,8 @@ Principal Architect, SAP Concur
 - Use Go's templates to render the HTML site
 - Find/steal some decent CSS
 - Write some simple JavaScript - less fun than Go, but unavoidable
+
+.caption Let's go for it!
 
 .background media/plane_bg.png
 
@@ -80,42 +82,65 @@ Principal Architect, SAP Concur
 * Simple command execution
 .play examples/output/output.go
 .background media/plane_bg.png
+: os package can be used to execute processes and connect pipes.
+: os/exec was designed to make process execution easier.
+: One-liner gets the result of executing bash.
 
 
 
 * Combining stdout and stderr
 .play examples/combinedOutput/combinedOutput.go
 .background media/plane_bg.png
+: Using CombinedOutput we can capture stdout and stderr in the same stream.
+: os/exec makes sure writes are synchronized.
 
 
 
 * Using a Command with stdin/stdout
 .play examples/command/command.go
 .background media/plane_bg.png
+: For our project, we need to deal with streams, so let's try out streams.
+: You can assign cmd.Stdin, cmd.Stdout, and cmd.Stderr.
+: If they are actual os files, they are passed over as such.
+: Otherwise, a pipe is automatically created, including a goroutine to read or write.
+: cmd.Run() executes the command using the streams assigned.
 
 
 
 * Running a Command in the background
 .play examples/background/background.go
 .background media/plane_bg.png
+: We need to be able to run the command in the background, not all at once.
+: For this, we use cmd.Start.
+: Once the I/O is done (in this example there isn't any), we call cmd.Wait.
 
 
 
 * Using pipes
 .play examples/pipe/pipe.go /func main/,/^}/
 .background media/plane_bg.png
+: You can create a pipe directly and write to it like any stream.
+: The pipe is closed when the command exits.
+: Note that some commands require the input to be closed before they will exit.
 
 
 
 * Orchestrate bash - setup Command
 .code -numbers examples/bbash/bbash.go /func main/,/launch/
 .background media/plane_bg.png
+: Create command and create pipes to use.
+: Make Stderr and Stdout the same writer!
+: Note: If Stdout and Stderr are the same writer, and have a type that can be compared with ==, at most one goroutine at a time will call Write.
 
 
 
 * Orchestrate bash - I/O and Wait
 .play -numbers examples/bbash/bbash.go /launch/,/^}/
 .background media/plane_bg.png
+: Write commands, closing the input when done.
+: Read the output.
+: Then (and only then) call cmd.Wait.
+: You must do all your reads before calling cmd.Wait.
 
 
 

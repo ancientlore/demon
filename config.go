@@ -56,16 +56,16 @@ type config struct {
 
 // readConfig loads a JSON file that stores a config.
 func readConfig(file string) (*config, error) {
-	b, err := ioutil.ReadFile(file)
+	b, err := ioutil.ReadFile(file) // HL
 	if err != nil {
 		return nil, err
 	}
 	var c config
-	err = json.Unmarshal(b, &c)
+	err = json.Unmarshal(b, &c) // HL
 	if err != nil {
 		return nil, err
 	}
-	err = c.Validate()
+	err = c.Validate() // HL
 	if err != nil {
 		return nil, err
 	}

@@ -41,19 +41,19 @@ func (p *process) Start(dest, errDest io.Writer) error {
 		}
 	}
 	log.Print(p.Title, ": Starting: ", name, " ", strings.Join(args, " "))
-	p.cmd = exec.Command(name, args...)
+	p.cmd = exec.Command(name, args...) // HL
 	p.cmd.Dir = p.Dir
 
-	p.stdin, err = p.cmd.StdinPipe()
+	p.stdin, err = p.cmd.StdinPipe() // HL
 	if err != nil {
 		return err
 	}
-	p.stdout, err = p.cmd.StdoutPipe()
+	p.stdout, err = p.cmd.StdoutPipe() // HL
 	if err != nil {
 		return err
 	}
 	p.wg.Add(1)
-	go readPipe(&p.wg, p.stdout, dest)
+	go readPipe(&p.wg, p.stdout, dest) // HL
 	p.cmd.Stderr = p.cmd.Stdout
 	/*
 		p.stderr, err = p.cmd.StderrPipe()
@@ -64,7 +64,7 @@ func (p *process) Start(dest, errDest io.Writer) error {
 		go readPipe(&p.wg, p.stderr, errDest)
 	*/
 
-	err = p.cmd.Start()
+	err = p.cmd.Start() // HL
 	if err != nil {
 		return err
 	}
@@ -92,12 +92,12 @@ func (p *process) Wait() error {
 			time.Sleep(100 * time.Millisecond)
 		}
 		log.Print(p.Title, ": Closing stdin")
-		p.stdin.Close()
+		p.stdin.Close() // HL
 	}
 	if p.cmd != nil {
 		log.Print(p.Title, ": Starting wait: ", p.Command[0])
 		p.wg.Wait()
-		return p.cmd.Wait()
+		return p.cmd.Wait() // HL
 	}
 	return nil
 }

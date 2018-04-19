@@ -110,7 +110,7 @@ window.onload = function () {
 			var item = document.createElement("div");
 			item.innerHTML = "<pre>$ <b>"+val+"</b></pre>";
 			appendLog(item);
-			conn.send(val);
+			conn.send(val); // HL
 			return false;
 		};
 		document.getElementById(k+"_form").onsubmit = function () {
@@ -123,13 +123,13 @@ window.onload = function () {
 		};
 
 		if (window["WebSocket"]) {
-			conn = new WebSocket("ws://" + document.location.host + "/ws/"+k);
+			conn = new WebSocket("ws://" + document.location.host + "/ws/"+k); // HL
 			conn.onclose = function (evt) {
 				var item = document.createElement("div");
 				item.innerHTML = "<b>Connection closed.</b>";
 				appendLog(item);
 			};
-			conn.onmessage = function (evt) {
+			conn.onmessage = function (evt) { // HL
 				var messages = evt.data.split('\n');
 				for (var i = 0; i < messages.length; i++) {
 					var item = document.createElement("div");

@@ -116,7 +116,7 @@ func closeProcesses() error {
 }
 
 func (p *process) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	ws, err := upgrader.Upgrade(w, r, nil)
+	ws, err := upgrader.Upgrade(w, r, nil) // HL
 	if err != nil {
 		log.Print("upgrade: ", err)
 		return
@@ -128,10 +128,10 @@ func (p *process) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	procsToClose = append(procsToClose, p)
 	procsToCloseMutex.Unlock()
 
-	defer ws.Close()
+	defer ws.Close() // HL
 
 	rdr, wtr := io.Pipe()
-	err = p.Start(wtr, wtr)
+	err = p.Start(wtr, wtr) // HL
 	if err != nil {
 		log.Print("stdout: ", err)
 		ws.WriteMessage(websocket.TextMessage, []byte("Internal server error."))
@@ -145,10 +145,10 @@ func (p *process) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}()
 
 	stdoutDone := make(chan struct{})
-	go pumpStdout(ws, rdr, stdoutDone)
+	go pumpStdout(ws, rdr, stdoutDone) // HL
 	go ping(ws, stdoutDone)
 
-	pumpStdin(ws, p)
+	pumpStdin(ws, p) // HL
 
 	<-stdoutDone
 }

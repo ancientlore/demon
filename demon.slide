@@ -20,10 +20,16 @@ Principal Architect, SAP Concur
 .image media/gopher.png
 
 [[https://twitter.com/ancientlore][@ancientlore]]
+.link https://github.com/ancientlore/demon
 
 .background media/plane_bg.png
 
 : Hello.
+
+
+
+* The Idea
+.background media/plane_bg.png
 
 
 
@@ -63,6 +69,58 @@ Principal Architect, SAP Concur
 
 : Go provides a lot of what we need to do this quickly.
 : External packages provide the rest.
+
+
+
+* Try out the os/exec package
+.background media/plane_bg.png
+
+
+
+* Simple command execution
+.play examples/output/output.go
+.background media/plane_bg.png
+
+
+
+* Combining stdout and stderr
+.play examples/combinedOutput/combinedOutput.go
+.background media/plane_bg.png
+
+
+
+* Using a Command with stdin/stdout
+.play examples/command/command.go
+.background media/plane_bg.png
+
+
+
+* Running a Command in the background
+.play examples/background/background.go
+.background media/plane_bg.png
+
+
+
+* Using pipes
+.play examples/pipe/pipe.go /func main/,/^}/
+.background media/plane_bg.png
+
+
+
+* Orchestrate bash - setup Command
+.code -numbers examples/bbash/bbash.go /func main/,/launch/
+.background media/plane_bg.png
+
+
+
+* Orchestrate bash - I/O and Wait
+.play -numbers examples/bbash/bbash.go /launch/,/^}/
+.background media/plane_bg.png
+
+
+
+* Coding the utility
+.background media/plane_bg.png
 
 
 
@@ -180,6 +238,12 @@ The handler:
 .background media/plane_bg.png
 
 : Using html/template.
+
+
+
+* Finishing up
+.background media/plane_bg.png
+
 
 
 * Demo

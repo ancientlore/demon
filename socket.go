@@ -130,8 +130,7 @@ func (p *process) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	defer ws.Close() // HL
 
-	rdr, wtr := io.Pipe()
-	err = p.Start(wtr, wtr) // HL
+	err = p.Start() // HL
 	if err != nil {
 		log.Print("stdout: ", err)
 		ws.WriteMessage(websocket.TextMessage, []byte("Internal server error."))
@@ -145,7 +144,7 @@ func (p *process) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}()
 
 	stdoutDone := make(chan struct{})
-	go pumpStdout(ws, rdr, stdoutDone) // HL
+	go pumpStdout(ws, p, stdoutDone) // HL
 	go ping(ws, stdoutDone)
 
 	pumpStdin(ws, p) // HL

@@ -184,9 +184,10 @@ Principal Architect, SAP Concur
 * The process type
 .code config.go /^\s*type process/,/^\}/
 
-- Start(dest, errDest io.Writer) error
+- Start() error
 - Wait() error
 - Write(b []byte) (int, error) // io.Writer
+- Read(b []byte) (n int, err error) // io.Reader
 
 See [[https://golang.org/pkg/os/exec/][golang.org/pkg/os/exec]]
 .background media/plane_bg.png
@@ -194,10 +195,8 @@ See [[https://golang.org/pkg/os/exec/][golang.org/pkg/os/exec]]
 : The process type doesn't know about websockets.
 : Was written during testing before websockets were added.
 : It allows you to start and stop the process.
-: It reads the stdout/stderr and writes to the streams provided.
 : Use Write (implementing io.Writer) to write to stdin.
-: Doesn't really need the waitgroup unless we separately handle stdout/stderr.
-
+: Use Read (implementing io.Reader) to read the combined stdout/stderr.
 
 
 * Starting a process

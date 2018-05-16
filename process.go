@@ -1,14 +1,11 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
-	"io"
 	"log"
 	"os"
 	"os/exec"
 	"strings"
-	"sync"
 	"time"
 )
 
@@ -25,7 +22,7 @@ func (p *process) Clone() *process {
 
 // Start starts a process after processing environment variables in the command line
 // and connecting pipes for I/O.
-func (p *process) Start(dest, errDest io.Writer) error {
+func (p *process) Start() error {
 	var err error
 
 	if p.cmd != nil {
@@ -52,17 +49,7 @@ func (p *process) Start(dest, errDest io.Writer) error {
 	if err != nil {
 		return err
 	}
-	p.wg.Add(1)
-	go readPipe(&p.wg, p.stdout, dest) // HL
-	p.cmd.Stderr = p.cmd.Stdout
-	/*
-		p.stderr, err = p.cmd.StderrPipe()
-		if err != nil {
-			return err
-		}
-		p.wg.Add(1)
-		go readPipe(&p.wg, p.stderr, errDest)
-	*/
+	p.cmd.Stderr = p.cmd.Stdout // HL
 
 	err = p.cmd.Start() // HL
 	if err != nil {
@@ -77,7 +64,6 @@ func (p *process) Wait() error {
 	p.wm.Lock()
 	defer p.wm.Unlock()
 	defer func() {
-		p.stderr = nil
 		p.stdout = nil
 		p.stdin = nil
 		p.cmd = nil
@@ -96,13 +82,12 @@ func (p *process) Wait() error {
 	}
 	if p.cmd != nil {
 		log.Print(p.Title, ": Starting wait: ", p.Command[0])
-		p.wg.Wait()
 		return p.cmd.Wait() // HL
 	}
 	return nil
 }
 
-// Write is ised to write information to stdin.
+// Write is used to write information to stdin.
 func (p *process) Write(b []byte) (int, error) {
 	p.wm.Lock()
 	defer p.wm.Unlock()
@@ -110,22 +95,13 @@ func (p *process) Write(b []byte) (int, error) {
 	return p.stdin.Write(b)
 }
 
+// Read is used to read information from stdout.
+func (p *process) Read(b []byte) (n int, err error) {
+	return p.stdout.Read(b)
+}
+
 // Interrupt sends an interrupt signal to the process.
 func (p *process) Interrupt() error {
 	log.Print(p.Title, ": Interrupt")
 	return p.cmd.Process.Signal(os.Interrupt)
-}
-
-// readPipe is used as a gorotuine to process data coming back from the process.
-func readPipe(wg *sync.WaitGroup, p io.Reader, dest io.Writer) {
-	defer wg.Done()
-
-	scanner := bufio.NewScanner(p)
-	for scanner.Scan() {
-		fmt.Fprintln(dest, scanner.Text())
-		// fmt.Fprintln(os.Stdout, scanner.Text())
-	}
-	if err := scanner.Err(); err != nil {
-		log.Print(err)
-	}
 }

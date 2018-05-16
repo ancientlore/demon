@@ -28,9 +28,7 @@ type process struct {
 
 	cmd    *exec.Cmd      // Command object for running the process
 	stdin  io.WriteCloser // Input stream for the process
-	stdout io.ReadCloser  // Output stream for the process
-	stderr io.ReadCloser  // Error stream for the process
-	wg     sync.WaitGroup // Wait group used to make sure the readers are done
+	stdout io.ReadCloser  // Output and error stream for the process
 	wm     sync.Mutex     // Mutex to make sure writes to stdin are serialized
 }
 

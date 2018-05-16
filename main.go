@@ -70,6 +70,7 @@ func main() {
 	if err != nil {
 		log.Print(err)
 	}
+	log.Print("Processes stopped.")
 	d := time.Second * 5
 	wait, cancel := context.WithTimeout(context.Background(), d)
 	defer cancel()
@@ -77,4 +78,5 @@ func main() {
 	if err != nil {
 		log.Print(err)
 	}
+	log.Print("Done.")
 }

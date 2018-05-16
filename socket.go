@@ -45,6 +45,7 @@ func pumpStdin(ws *websocket.Conn, w io.Writer) {
 		}
 		message = append(message, '\n')
 		if _, err := w.Write(message); err != nil {
+			log.Print("stdin: ", err)
 			break
 		}
 	}
@@ -132,7 +133,7 @@ func (p *process) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	err = p.Start() // HL
 	if err != nil {
-		log.Print("stdout: ", err)
+		log.Print("start: ", err)
 		ws.WriteMessage(websocket.TextMessage, []byte("Internal server error."))
 		return
 	}
